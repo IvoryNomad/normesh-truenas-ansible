@@ -1,0 +1,56 @@
+classDiagram
+    class TrueNASConnection {
+        -websocket_url: str
+        -auth_token: str
+        -connection_id: str
+        +connect()
+        +disconnect()
+        +call_api(method: str, params: dict)
+    }
+
+    class DatasetManager {
+        -connection: TrueNASConnection
+        +create_dataset(name: str, properties: dict)
+        +delete_dataset(name: str)
+        +set_properties(dataset: str, properties: dict)
+        +get_status(dataset: str)
+    }
+
+    class ShareManager {
+        -connection: TrueNASConnection
+        +create_smb_share(name: str, path: str, properties: dict)
+        +create_nfs_share(name: str, path: str, properties: dict)
+        +delete_share(name: str, type: str)
+        +get_shares(type: str)
+    }
+
+    class DeviceManager {
+        -connection: TrueNASConnection
+        +manage_certificates()
+        +configure_cloud_backup()
+        +manage_cronjobs()
+        +configure_acls()
+    }
+
+    TrueNASConnection *-- DatasetManager : uses
+    TrueNASConnection *-- ShareManager : uses
+    TrueNASConnection *-- DeviceManager : uses
+
+    class DatasetActionPlugin {
+        -dataset_manager: DatasetManager
+        +run(tmp=None, task_vars=None)
+    }
+
+    class ShareActionPlugin {
+        -share_manager: ShareManager
+        +run(tmp=None, task_vars=None)
+    }
+
+    class DeviceActionPlugin {
+        -device_manager: DeviceManager
+        +run(tmp=None, task_vars=None)
+    }
+
+    DatasetManager *-- DatasetActionPlugin : uses
+    ShareManager *-- ShareActionPlugin : uses
+    DeviceManager *-- DeviceActionPlugin : uses
